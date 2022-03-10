@@ -36,6 +36,8 @@ import {connect} from 'react-redux';
 import moment from 'moment';
 import {Toast} from 'native-base';
 import Spinner from 'react-native-loading-spinner-overlay';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -169,6 +171,7 @@ class Member_Register extends Component {
       const res = await adduser(data);
       console.log(res[1], 'resssss');
       this.setState({imagepath: res[1], loading: false});
+      AsyncStorage.setItem('image', res[1]);
     } catch (error) {
       if (error.request) {
         console.log(error.request);
@@ -202,7 +205,8 @@ class Member_Register extends Component {
     if (
       this.validation() &&
       this.passwordCheck() &&
-      this.checkPassEmail(email, confirmpassword)
+      this.checkPassEmail(email, confirmpassword) &&
+      this.phoneValidation()
     ) {
       this.setState({loading: true});
       let data = {
@@ -215,6 +219,7 @@ class Member_Register extends Component {
         User_Since: since,
         User_Image_Path: imagepath,
         User_MemberID: memberid,
+        User_Location: location,
         Type: 1,
         User_Type: 1,
         User_IsActive: 1,
@@ -250,7 +255,7 @@ class Member_Register extends Component {
         this.setState({loading: false});
         this.props.setToken(res.access_token);
         // AsyncStorage.setItem('token', res.access_token);
-        // navigation.navigate('DrawerNavigator', {screen: 'HomeScreen'});
+        this.props.navigation.navigate('Homepage');
       })
       .catch(error => {
         console.log(error.response.data.error_description);
@@ -269,12 +274,15 @@ class Member_Register extends Component {
   };
 
   validation = () => {
-    const {fullname, email, password, confirmpassword} = this.state;
+    const {fullname, email, phone, password, confirmpassword} = this.state;
     let cancel = false;
     if (fullname.length === 0) {
       cancel = true;
     }
     if (email.length === 0) {
+      cancel = true;
+    }
+    if (phone === null) {
       cancel = true;
     }
     if (password.length === 0) {
@@ -320,6 +328,16 @@ class Member_Register extends Component {
     }
   };
 
+  phoneValidation = () => {
+    const {phone} = this.state;
+    if (phone.length != 10) {
+      this.showMessage('Please enter valid phone number');
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   render() {
     const {navigation} = this.props;
     const {
@@ -341,9 +359,9 @@ class Member_Register extends Component {
     } = this.state;
     const user = this.props.userType;
     return (
-      <SafeAreaView style={{flex: 1, backgroundColor: '#E5E5E5'}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: '#FFFFFF'}}>
         <Header />
-        <ScrollView keyboardShouldPersistTaps="handled">
+        <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
           <Spinner visible={loading} color="#5B0BBC" />
           <View style={{marginTop: 10, marginLeft: 20}}>
             <Text style={styles.sign}>Sign Up</Text>
@@ -369,7 +387,7 @@ class Member_Register extends Component {
 
           <ActionSheet
             ref={o => (this.ActionSheet = o)}
-            title={'Which one do you like ?'}
+            title={'Profile Photo'}
             options={['Camera', 'Gallery', 'Cancel']}
             cancelButtonIndex={2}
             destructiveButtonIndex={1}
@@ -383,13 +401,30 @@ class Member_Register extends Component {
           />
           <View style={{marginTop: 20}}>
             <TextField
-              label="Full Name"
+              label="Full Name*"
               value={fullname}
               onChangeText={fullname => this.setState({fullname})}
             />
           </View>
           <View style={{marginTop: 20}}>
-            <TextField label="Since" keyboardType="numeric" value={since} />
+            <TouchableOpacity
+              onPress={() =>
+                this.setState(
+                  {
+                    dobboolean: false,
+                    sinceboolean: true,
+                  },
+                  this.showDatePicker(),
+                )
+              }>
+              <TextField
+                label="Since"
+                keyboardType="numeric"
+                value={since}
+                editable={false}
+              />
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.calendar}
               onPress={() =>
@@ -413,7 +448,7 @@ class Member_Register extends Component {
           </View>
           <View style={{marginTop: 20}}>
             <TextField
-              label="Email address"
+              label="Email address*"
               value={email}
               onChangeText={email => this.setState({email})}
             />
@@ -421,7 +456,7 @@ class Member_Register extends Component {
 
           <View style={{marginTop: 20}}>
             <TextField
-              label="Password"
+              label="Password*"
               secureTextEntry={isShowPassword}
               value={password}
               onChangeText={password => this.setState({password})}
@@ -438,7 +473,7 @@ class Member_Register extends Component {
           </View>
           <View style={{marginTop: 20}}>
             <TextField
-              label="Confirm Password"
+              label="Confirm Password*"
               value={confirmpassword}
               onChangeText={confirmpassword => this.setState({confirmpassword})}
               secureTextEntry={isShowConfirmPassword}
@@ -467,18 +502,31 @@ class Member_Register extends Component {
           </View>
           <View style={{marginTop: 20}}>
             <TextField
-              label="Phone Number"
+              label="Phone Number*"
               value={phone}
               onChangeText={phone => this.setState({phone})}
               keyboardType="numeric"
             />
           </View>
           <View style={{marginTop: 20}}>
-            <TextField
-              label="Date of Birth"
-              keyboardType="numeric"
-              value={dob}
-            />
+            <TouchableOpacity
+              onPress={() =>
+                this.setState(
+                  {
+                    dobboolean: true,
+                    sinceboolean: false,
+                  },
+                  this.showDatePicker(),
+                )
+              }>
+              <TextField
+                label="Date of Birth"
+                keyboardType="numeric"
+                value={dob}
+                editable={false}
+              />
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.calendar}
               onPress={() =>
@@ -497,6 +545,7 @@ class Member_Register extends Component {
           <DateTimePickerModal
             isVisible={isDatePickerVisible}
             mode="date"
+            maximumDate={new Date(Date.now() - 86400000)}
             onConfirm={date => this.handleConfirm(date)}
             onCancel={() => this.hideDatePicker()}
           />
@@ -523,14 +572,15 @@ class Member_Register extends Component {
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              marginTop: 20,
+              marginTop: 10,
+              marginBottom: 10,
             }}>
             <Text style={styles.account}>Already have an account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
               <Text style={styles.signin}>Sign In</Text>
             </TouchableOpacity>
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </SafeAreaView>
     );
   }
@@ -563,7 +613,7 @@ const styles = StyleSheet.create({
     color: '#264653',
     textAlign: 'left',
     fontWeight: '700',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   desc: {
     fontSize: 16,
@@ -571,7 +621,7 @@ const styles = StyleSheet.create({
     color: '#98A6AE',
     textAlign: 'left',
     fontWeight: '400',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   document: {
     marginTop: 10,
@@ -590,14 +640,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  calendar: {position: 'absolute', right: 30, bottom: 15},
+  calendar: {position: 'absolute', right: 30, bottom: 15, zIndex: 1},
   account: {
     fontSize: 16,
     lineHeight: 24,
     color: '#98A6AE',
     textAlign: 'left',
     fontWeight: '400',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   signin: {
     fontSize: 16,
@@ -605,7 +655,7 @@ const styles = StyleSheet.create({
     color: '#7200FD',
     textAlign: 'left',
     fontWeight: '700',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
 });
 

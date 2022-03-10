@@ -2,7 +2,11 @@ import React from 'react';
 import {View, Text} from 'react-native';
 import MainPage from './src/modules/main/MainPage';
 
-import {AuthNavigation, StackNavigation} from './src/navigation/Mainsatck';
+import {
+  AuthNavigation,
+  StackNavigationEnroller,
+  StackNavigationMember,
+} from './src/navigation/Mainsatck';
 import store, {persistor} from './src/store';
 
 import {Provider, useSelector} from 'react-redux';
@@ -12,10 +16,20 @@ import {NativeBaseProvider} from 'native-base';
 
 function App() {
   const user = useSelector(state => state.authReducer.token);
+  const userType = useSelector(state => state.authReducer.usertype);
+
   return (
     <NativeBaseProvider>
       <NavigationContainer>
-        {user ? <StackNavigation /> : <AuthNavigation />}
+        {user ? (
+          userType === true ? (
+            <StackNavigationMember />
+          ) : (
+            <StackNavigationEnroller />
+          )
+        ) : (
+          <AuthNavigation />
+        )}
       </NavigationContainer>
     </NativeBaseProvider>
   );

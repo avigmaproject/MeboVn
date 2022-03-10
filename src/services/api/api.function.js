@@ -61,8 +61,74 @@ export const adduser = async (data, access_token) => {
     });
 };
 
-export const getstate = async (data, access_token) => {
+export const getstate = async data => {
   return axios(`${BASE_URL}${API.GET_STATE_MASTER}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      // Authorization: 'Bearer ' + access_token,
+    },
+    data,
+  })
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const forgotpassword = async data => {
+  return axios(`${BASE_URL}${API.FORGOT_PASSWORD}`, {
+    method: 'POST',
+    data,
+  })
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const resetpassword = async data => {
+  return axios(`${BASE_URL}${API.RESET_PASSWORD}`, {
+    method: 'POST',
+    data,
+  })
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const getenrollermaster = async (data, access_token) => {
+  return axios(`${BASE_URL}${API.GET_ENROLLER_MASTER}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + access_token,
+    },
+    data,
+  })
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+export const getusermaster = async (data, access_token) => {
+  return axios(`${BASE_URL}${API.GET_USER_MASTER_MASTER}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + access_token,
+    },
+    data,
+  })
+    .then(response => response.data)
+    .catch(error => {
+      throw error;
+    });
+};
+
+export const getuserhome = async (data, access_token) => {
+  return axios(`${BASE_URL}${API.Get_User_Home}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

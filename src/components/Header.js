@@ -13,6 +13,7 @@ const Header = () => {
       <Image
         source={require('../assets/splashscreen_images/logo.png')}
         style={styles.monster}
+        resizeMode="contain"
       />
     </View>
   );
@@ -29,5 +30,7 @@ const styles = StyleSheet.create({
   },
   monster: {
     position: 'absolute',
+    height: windowHeight / 8,
+    width: windowWidth / 2,
   },
 });

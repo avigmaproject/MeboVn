@@ -29,7 +29,7 @@ const Gradiant_Button = ({text, ...props}) => {
             fontWeight: '600',
             fontSize: 18,
             lineHeight: 27,
-            // fontFamily: 'Poppins',
+            fontFamily: 'Poppins-Regular',
           }}>
           {text}
         </Text>

@@ -36,6 +36,7 @@ const Icon_Button = ({text, image, ...props}) => {
           lineHeight: 25.5,
           fontWeight: '500',
           color: '#98A6AE',
+          fontFamily: 'Poppins-Regular',
         }}>
         {text}
       </Text>

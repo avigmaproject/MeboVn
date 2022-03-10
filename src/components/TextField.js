@@ -9,6 +9,7 @@ const TextField = ({
   label,
   secureTextEntry,
   keyboardType,
+  editable,
   ...props
 }) => {
   return (
@@ -19,6 +20,7 @@ const TextField = ({
       placeholder={placeholder}
       secureTextEntry={secureTextEntry}
       keyboardType={keyboardType}
+      editable={editable}
       mode="outlined"
       outlineColor="transparent"
       autoCapitalize="none"
@@ -28,6 +30,10 @@ const TextField = ({
         fontSize: 16,
         lineHeight: 24,
         fontWeight: '600',
+        fontFamily: 'Poppins-Regular',
+        // borderWidth: 1,
+        // borderColor: '#EBEBEB',
+        // borderRadius: 6,
       }}
       theme={{
         colors: {
@@ -35,7 +41,7 @@ const TextField = ({
           text: '#36596A',
           primary: '#ABAEBE',
           underlineColor: 'transparent',
-          background: '#FAFAFA',
+          background: '#F3F2F4',
         },
       }}
     />

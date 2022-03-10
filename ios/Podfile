@@ -16,6 +16,8 @@ target 'MeboRn' do
 
   pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
 
+  pod 'RNFS', :path => '../node_modules/react-native-fs'
+
   target 'MeboRnTests' do
     inherit! :complete
     # Pods for testing

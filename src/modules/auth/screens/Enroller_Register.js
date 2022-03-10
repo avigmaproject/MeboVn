@@ -38,12 +38,11 @@ import moment from 'moment';
 import {Toast} from 'native-base';
 import Spinner from 'react-native-loading-spinner-overlay';
 import DropDownPicker from 'react-native-dropdown-picker';
-import DocumentPicker, {
-  DirectoryPickerResponse,
-  DocumentPickerResponse,
-  isInProgress,
-  types,
-} from 'react-native-document-picker';
+import DocumentPicker from 'react-native-document-picker';
+import * as RNFS from 'react-native-fs';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -79,6 +78,9 @@ class Enroller_Register extends Component {
       sinceboolean: false,
       medicalboolean: false,
       result: [],
+      multipleFile: [],
+      arrayofstates: [],
+      arrayofdocuments: [],
     };
     this.setValue = this.setValue.bind(this);
   }
@@ -94,7 +96,6 @@ class Enroller_Register extends Component {
     this.setState(state => ({
       stateList: callback(state.stateList),
     }));
-    console.log(this.state.stateList, 'this.state.stateList');
   }
 
   componentDidMount() {
@@ -163,7 +164,6 @@ class Enroller_Register extends Component {
         stateList: itemlist,
         loading: false,
       });
-      console.log(res);
     } catch (error) {
       console.log('hihihihihihih', {e: error.response.data.error});
       this.setState({loading: false});
@@ -180,7 +180,6 @@ class Enroller_Register extends Component {
         multiple: false,
         compressImageQuality: 0.5,
       }).then(image => {
-        console.log(image);
         if (image.data) {
           this.setState(
             {
@@ -236,8 +235,9 @@ class Enroller_Register extends Component {
     try {
       // const token = await AsyncStorage.getItem('token');
       const res = await adduser(data);
-      console.log(res[1], 'resssss');
+
       this.setState({imagepath: res[1], loading: false});
+      AsyncStorage.setItem('image', imagepath);
     } catch (error) {
       if (error.request) {
         console.log(error.request);
@@ -245,6 +245,64 @@ class Enroller_Register extends Component {
         console.log(error.responce);
       } else {
         console.log(error);
+      }
+    }
+  };
+
+  selectMultipleFile = async () => {
+    try {
+      const results = await DocumentPicker.pickMultiple();
+      for (const res of results) {
+        var data = new FormData();
+        data.append('uri', res);
+        data.append('Type', '1');
+
+        var config = {
+          method: 'post',
+          url: 'http://mebovanapi.ikaart.org/api/mebovan/UploadDocuments',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Accept: 'application/json',
+          },
+          data: data,
+        };
+
+        const response_data = '';
+        const response_name = '';
+
+        axios(config)
+          .then(response => {
+            response_data = response.data.Data[0]['url'];
+            response_name = response.data.Data[0]['name'];
+            if (this.state.arrayofdocuments.length === 0) {
+              var document_value = {
+                END_ImagePath: response_data,
+                END_ImageName: response_name,
+                END_Number: 1,
+                Type: 1,
+              };
+            } else {
+              var document_value = {
+                END_ImagePath: response_data,
+                END_ImageName: response_name,
+                END_Number: this.state.arrayofdocuments.length + 1,
+                Type: 1,
+              };
+            }
+            this.state.arrayofdocuments.push(document_value);
+
+            this.showMessage(response.data.Data[0]['name'] + ' Uploaded');
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      }
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('Canceled from multiple doc picker');
+      } else {
+        console.log('Unknown Error: ' + JSON.stringify(err));
+        throw err;
       }
     }
   };
@@ -267,18 +325,26 @@ class Enroller_Register extends Component {
       imagepath,
       dob,
       statedata,
+      arrayofstates,
+      arrayofdocuments,
     } = this.state;
     if (
       this.validation() &&
       this.passwordCheck() &&
-      this.checkPassEmail(email, confirmpassword)
+      this.checkPassEmail(email, confirmpassword) &&
+      this.phoneValidation()
     ) {
-      // const states_value = {
-      //   ESD_SD_PkeyID: statedata,
-      //   Type: 1,
-      // };
+      const ESD_SD_PkeyID = null;
+      if (statedata !== null) {
+        statedata.map(value => {
+          var states_value = {
+            ESD_SD_PkeyID: value,
+            Type: 1,
+          };
+          arrayofstates.push(states_value);
+        });
+      }
 
-      // console.log(states_value, 'states_value');
       this.setState({loading: true});
       let data = {
         EN_Name: fullname,
@@ -291,17 +357,17 @@ class Enroller_Register extends Component {
         EN_ImagePath: imagepath,
         EN_DOB: dob,
         EN_Location: location,
-        str_Enroller_State_Details_DTO: JSON.stringify(states_value),
+        str_Enroller_State_Details_DTO: JSON.stringify(arrayofstates),
+        str_Enroller_Document_DTO: JSON.stringify(arrayofdocuments),
         Type: 1,
-        EN_User_PkeyID: 1,
         EN_IsActive: 1,
         EN_IsDelete: 0,
       };
-      console.log(data, 'enrollerdata');
+
       try {
         // const token = await AsyncStorage.getItem('token');
         const res = await createupdateenroller(data);
-        console.log('ressssss:', res);
+
         console.log('Profile Updated');
         this.onEnrollerRegister();
         this.setState({loading: false});
@@ -322,12 +388,11 @@ class Enroller_Register extends Component {
     });
     await register(data)
       .then(res => {
-        console.log('res: ', res);
         this.props.setToken(res.access_token);
         this.showMessage('Account created successfully');
         this.setState({loading: false});
         // AsyncStorage.setItem('token', res.access_token);
-        // navigation.navigate('DrawerNavigator', {screen: 'HomeScreen'});
+        this.props.navigation.navigate('EnrollerProfile');
       })
       .catch(error => {
         console.log(error.response.data.error_description);
@@ -346,12 +411,15 @@ class Enroller_Register extends Component {
   };
 
   validation = () => {
-    const {fullname, email, password, confirmpassword} = this.state;
+    const {fullname, email, phone, password, confirmpassword} = this.state;
     let cancel = false;
     if (fullname.length === 0) {
       cancel = true;
     }
     if (email.length === 0) {
+      cancel = true;
+    }
+    if (phone === null) {
       cancel = true;
     }
     if (password.length === 0) {
@@ -397,6 +465,16 @@ class Enroller_Register extends Component {
     }
   };
 
+  phoneValidation = () => {
+    const {phone} = this.state;
+    if (phone.length != 10) {
+      this.showMessage('Please enter valid phone number');
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   setOpen() {
     this.setState({
       open: !this.state.open,
@@ -424,12 +502,13 @@ class Enroller_Register extends Component {
       stateList,
       open,
       value,
+      arrayofdocuments,
     } = this.state;
     const user = this.props.userType;
     return (
-      <SafeAreaView style={{flex: 1, backgroundColor: '#E5E5E5'}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: '#FFFFFF'}}>
         <Header />
-        <ScrollView keyboardShouldPersistTaps="handled">
+        <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
           <Spinner visible={loading} color="#5B0BBC" />
           <View style={{marginTop: 10, marginLeft: 20}}>
             <Text style={styles.sign}>Sign Up</Text>
@@ -455,7 +534,7 @@ class Enroller_Register extends Component {
 
           <ActionSheet
             ref={o => (this.ActionSheet = o)}
-            title={'Which one do you like ?'}
+            title={'Profile Photo'}
             options={['Camera', 'Gallery', 'Cancel']}
             cancelButtonIndex={2}
             destructiveButtonIndex={1}
@@ -469,14 +548,14 @@ class Enroller_Register extends Component {
           />
           <View style={{marginTop: 20}}>
             <TextField
-              label="Full Name"
+              label="Full Name*"
               value={fullname}
               onChangeText={fullname => this.setState({fullname})}
             />
           </View>
           <View style={{marginTop: 20}}>
             <TextField
-              label="Phone Number"
+              label="Phone Number*"
               value={phone}
               onChangeText={phone => this.setState({phone})}
               keyboardType="numeric"
@@ -485,7 +564,7 @@ class Enroller_Register extends Component {
 
           <View style={{marginTop: 20}}>
             <TextField
-              label="Email address"
+              label="Email address*"
               value={email}
               onChangeText={email => this.setState({email})}
             />
@@ -493,7 +572,7 @@ class Enroller_Register extends Component {
 
           <View style={{marginTop: 20}}>
             <TextField
-              label="Password"
+              label="Password*"
               secureTextEntry={isShowPassword}
               value={password}
               onChangeText={password => this.setState({password})}
@@ -510,7 +589,7 @@ class Enroller_Register extends Component {
           </View>
           <View style={{marginTop: 20}}>
             <TextField
-              label="Confirm Password"
+              label="Confirm Password*"
               value={confirmpassword}
               onChangeText={confirmpassword => this.setState({confirmpassword})}
               secureTextEntry={isShowConfirmPassword}
@@ -530,7 +609,25 @@ class Enroller_Register extends Component {
             </TouchableOpacity>
           </View>
           <View style={{marginTop: 20}}>
-            <TextField label="Since" value={since} keyboardType="numeric" />
+            <TouchableOpacity
+              onPress={() =>
+                this.setState(
+                  {
+                    medicalboolean: false,
+                    dobboolean: false,
+                    sinceboolean: true,
+                  },
+                  this.showDatePicker(),
+                )
+              }>
+              <TextField
+                label="Since"
+                value={since}
+                keyboardType="numeric"
+                editable={false}
+              />
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.calendar}
               onPress={() =>
@@ -549,15 +646,30 @@ class Enroller_Register extends Component {
           <DateTimePickerModal
             isVisible={isDatePickerVisible}
             mode="date"
+            maximumDate={new Date(Date.now() - 86400000)}
             onConfirm={date => this.handleConfirm(date, value)}
             onCancel={() => this.hideDatePicker()}
           />
           <View style={{marginTop: 20}}>
-            <TextField
-              label="Date of Birth"
-              value={dob}
-              keyboardType="numeric"
-            />
+            <TouchableOpacity
+              onPress={() =>
+                this.setState(
+                  {
+                    dobboolean: true,
+                    sinceboolean: false,
+                    medicalboolean: false,
+                  },
+                  this.showDatePicker(),
+                )
+              }>
+              <TextField
+                label="Date of Birth"
+                value={dob}
+                keyboardType="numeric"
+                editable={false}
+              />
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.calendar}
               onPress={() =>
@@ -575,11 +687,25 @@ class Enroller_Register extends Component {
           </View>
 
           <View style={{marginTop: 20}}>
-            <TextField
-              label="Medical contact date"
-              value={medicaldate}
-              keyboardType="numeric"
-            />
+            <TouchableOpacity
+              onPress={() =>
+                this.setState(
+                  {
+                    dobboolean: false,
+                    sinceboolean: false,
+                    medicalboolean: true,
+                  },
+                  this.showDatePicker(),
+                )
+              }>
+              <TextField
+                label="Medical contact date"
+                value={medicaldate}
+                keyboardType="numeric"
+                editable={false}
+              />
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.calendar}
               onPress={() =>
@@ -601,6 +727,7 @@ class Enroller_Register extends Component {
               label="NPN"
               value={npn}
               onChangeText={npn => this.setState({npn})}
+              keyboardType="numeric"
             />
           </View>
           <View style={{marginTop: 20}}>
@@ -614,7 +741,7 @@ class Enroller_Register extends Component {
             <Text style={styles.desc}>Documents</Text>
             <View style={styles.document}>
               <View style={styles.docs}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => this.selectMultipleFile()}>
                   <Ionicons
                     name="cloud-upload-outline"
                     color="#6101D8"
@@ -666,14 +793,15 @@ class Enroller_Register extends Component {
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              marginTop: 20,
+              marginTop: 10,
+              marginBottom: 10,
             }}>
             <Text style={styles.account}>Already have an account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
               <Text style={styles.signin}>Sign In</Text>
             </TouchableOpacity>
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </SafeAreaView>
     );
   }
@@ -706,7 +834,7 @@ const styles = StyleSheet.create({
     color: '#264653',
     textAlign: 'left',
     fontWeight: '700',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   desc: {
     fontSize: 16,
@@ -714,7 +842,7 @@ const styles = StyleSheet.create({
     color: '#98A6AE',
     textAlign: 'left',
     fontWeight: '400',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   document: {
     marginTop: 10,
@@ -733,14 +861,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  calendar: {position: 'absolute', right: 30, bottom: 15},
+  calendar: {position: 'absolute', right: 30, bottom: 15, zIndex: 1},
   account: {
     fontSize: 16,
     lineHeight: 24,
     color: '#98A6AE',
     textAlign: 'left',
     fontWeight: '400',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   signin: {
     fontSize: 16,
@@ -748,7 +876,7 @@ const styles = StyleSheet.create({
     color: '#7200FD',
     textAlign: 'left',
     fontWeight: '700',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   dropdownstyle: {
     borderRadius: 0,
@@ -765,6 +893,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     fontWeight: '600',
+    fontFamily: 'Poppins-Regular',
   },
   dropdowncontainer: {
     backgroundColor: '#ffffff',
@@ -776,6 +905,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     fontWeight: '600',
+    fontFamily: 'Poppins-Regular',
   },
 });
 

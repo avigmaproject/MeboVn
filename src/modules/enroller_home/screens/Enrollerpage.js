@@ -1,20 +1,12 @@
 import React, {Component} from 'react';
-import {
-  View,
-  Text,
-  SafeAreaView,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Button,
-} from 'react-native';
+import {Text, View, Alert, Button, SafeAreaView} from 'react-native';
 
-import Gradiant_Button from '../../../components/Gradiant_Button';
 import {signout, userId} from '../../../store/action/auth/action';
+import Header from '../components/Header';
 
 import {connect} from 'react-redux';
 
-class Homepage extends Component {
+class Enrollerpage extends Component {
   Logout = () => {
     Alert.alert(
       'Logout',
@@ -25,24 +17,13 @@ class Homepage extends Component {
   };
   logoutUser = async () => {
     this.props.signout();
-
-    // await AsyncStorage.removeItem('token');
   };
-
   render() {
+    const {navigation} = this.props;
     return (
-      <SafeAreaView style={{flex: 1}}>
-        <View
-          style={{
-            height: 80,
-            backgroundColor: '#264653',
-            borderWidth: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <Text style={{fontSize: 25, color: '#ffffff'}}>Home</Text>
-        </View>
-        <View style={{alignItems: 'center', justifyContent: 'center', flex: 3}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: '#FFFFFF'}}>
+        <Header onPress={() => navigation.navigate('EnrollerProfile')} />
+        <View style={{marginTop: 50}}>
           <Button title="logout" onPress={() => this.Logout()} />
         </View>
       </SafeAreaView>
@@ -58,4 +39,4 @@ const mapStateToProps = (state, ownProps) => ({
   // contacts: state.contactReducer.contacts,
   // parentid: state.parentidReducer.parentid,
 });
-export default connect(mapStateToProps, mapDispatchToProps)(Homepage);
+export default connect(mapStateToProps, mapDispatchToProps)(Enrollerpage);

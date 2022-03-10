@@ -1,0 +1,26 @@
+  Output1() {
+       var map1 = new Map([['A', 1]]);
+      var map2 = new Map([['A', 2]]);
+      var map3 = new Map([['A', 3]]);
+      var map4 = new Map([['V', 1]]);
+      var concatenated = new Map(
+        [...map1].concat([...map2].concat([...map3].concat([...map4]))),
+      );
+
+      console.log(concatenated, 'concatenated');
+  }
+  
+  Output2() {
+    var map1 = new Map([
+      ['A', 1],
+      ['B', 2],
+      ['A', 4],
+    ]);
+    var map2 = new Map([
+      ['C', 3],
+      ['D', 4],
+    ]);
+    var map3 = new Map([['X', 0]]);
+    var concatenated = new Map([...map1].concat([...map2].concat([...map3])));
+    console.log(concatenated, 'concatenated');
+  }

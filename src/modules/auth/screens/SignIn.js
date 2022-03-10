@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -75,8 +76,8 @@ class SignIn extends Component {
   };
 
   onMemberLogin = async () => {
-    this.setState({loading: true});
     if (this.Validation()) {
+      this.setState({loading: true});
       let data = qs.stringify({
         username: this.state.email,
         password: this.state.password,
@@ -86,21 +87,24 @@ class SignIn extends Component {
       await login(data)
         .then(res => {
           console.log('res: ', res);
+          this.setState({loading: false});
           this.props.setToken(res.access_token);
           this.showMessage('Login successfully');
           this.props.navigation.navigate('Homepage');
-          this.setState({loading: false});
         })
         .catch(error => {
-          console.log(error.response.data.error_description);
           this.setState({loading: false});
+          console.log(error.response.data.error_description);
+          if (error.response.data.error_description) {
+            this.showMessage('The username or password is incorrect');
+          }
         });
     }
   };
 
   onEnrollerLogin = async () => {
-    this.setState({loading: true});
     if (this.Validation()) {
+      this.setState({loading: true});
       let data = qs.stringify({
         username: this.state.email,
         password: this.state.password,
@@ -109,15 +113,18 @@ class SignIn extends Component {
       });
       await login(data)
         .then(res => {
+          this.setState({loading: false});
           console.log('res: ', res);
           this.props.setToken(res.access_token);
           this.showMessage('Login successfully');
-          this.props.navigation.navigate('Homepage');
-          this.setState({loading: false});
+          this.props.navigation.navigate('EnrollerProfile');
         })
         .catch(error => {
           console.log(error.response.data.error_description);
           this.setState({loading: false});
+          if (error.response.data.error_description) {
+            this.showMessage('The username or password is incorrect');
+          }
         });
     }
   };
@@ -127,109 +134,111 @@ class SignIn extends Component {
     const {isShowPassword, email, password, loading} = this.state;
     const member = this.props.userType;
     return (
-      <SafeAreaView style={{flex: 1, backgroundColor: '#E5E5E5'}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: '#FFFFFF'}}>
         <Header />
-        <Spinner visible={loading} color="#5B0BBC" />
-        <View style={{marginTop: 10, marginLeft: 20}}>
-          <Text style={styles.sign}>Sign In</Text>
-        </View>
-        <View style={{marginTop: 10, marginLeft: 20}}>
-          <Text style={styles.desc}>Please sign in to enter in a app</Text>
-        </View>
-        <View style={{marginTop: 20}}>
-          <TextField
-            label="Email address*"
-            value={email}
-            onChangeText={email => this.setState({email})}
-          />
-        </View>
-        <View style={{marginTop: 20}}>
-          <TextField
-            label="Password*"
-            value={password}
-            onChangeText={password => this.setState({password})}
-            secureTextEntry={isShowPassword}
-          />
-          <TouchableOpacity
-            style={styles.calendar}
-            onPress={() => this.managePasswordVisibility()}>
-            <Ionicons
-              name={isShowPassword ? 'md-eye-off-outline' : 'md-eye-outline'}
-              color="#36596A"
-              size={26}
-            />
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            marginTop: 10,
-            alignItems: 'flex-end',
-            marginRight: 20,
-            // marginBottom: 50,
-          }}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ForgetPassword')}>
-            <Text style={styles.forgetpass}>Forgot password?</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{marginTop: 20}}>
-          <Gradiant_Button
-            text="Login"
-            onPress={
-              member === true
-                ? () => this.onMemberLogin()
-                : () => this.onEnrollerLogin()
-            }
-          />
-        </View>
-        {member === true ? (
-          <View>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: -20,
-              }}>
-              <View style={styles.orline1} />
-              <View style={{marginTop: 45}}>
-                <Text style={styles.desc}>OR</Text>
-              </View>
-
-              <View style={styles.orline2} />
-            </View>
-            <View style={{marginTop: 20}}>
-              <Icon_Button
-                text="Sign in with Google"
-                image={require('../assets/gmail-logo.png')}
-              />
-            </View>
-            <View style={{marginTop: 10}}>
-              <Icon_Button
-                text="Sign in with Facebook"
-                image={require('../assets/facebook-logo.png')}
-              />
-            </View>
+        <ScrollView keyboardShouldPersistTaps="handled">
+          <Spinner visible={loading} color="#5B0BBC" />
+          <View style={{marginTop: 10, marginLeft: 20}}>
+            <Text style={styles.sign}>Sign In</Text>
           </View>
-        ) : null}
+          <View style={{marginTop: 10, marginLeft: 20}}>
+            <Text style={styles.desc}>Please sign in to enter in a app</Text>
+          </View>
+          <View style={{marginTop: 20}}>
+            <TextField
+              label="Email address*"
+              value={email}
+              onChangeText={email => this.setState({email})}
+            />
+          </View>
+          <View style={{marginTop: 20}}>
+            <TextField
+              label="Password*"
+              value={password}
+              onChangeText={password => this.setState({password})}
+              secureTextEntry={isShowPassword}
+            />
+            <TouchableOpacity
+              style={styles.calendar}
+              onPress={() => this.managePasswordVisibility()}>
+              <Ionicons
+                name={isShowPassword ? 'md-eye-off-outline' : 'md-eye-outline'}
+                color="#36596A"
+                size={26}
+              />
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              marginTop: 10,
+              alignItems: 'flex-end',
+              marginRight: 20,
+              // marginBottom: 50,
+            }}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ForgetPassword')}>
+              <Text style={styles.forgetpass}>Forgot password?</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{marginTop: 20}}>
+            <Gradiant_Button
+              text="Login"
+              onPress={
+                member === true
+                  ? () => this.onMemberLogin()
+                  : () => this.onEnrollerLogin()
+              }
+            />
+          </View>
+          {/* {member === true ? (
+            <View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginTop: -20,
+                }}>
+                <View style={styles.orline1} />
+                <View style={{marginTop: 45}}>
+                  <Text style={styles.desc}>OR</Text>
+                </View>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginTop: 50,
-          }}>
-          <Text style={styles.account}>Don't have an account? </Text>
-          <TouchableOpacity
-            onPress={
-              member === true
-                ? () => navigation.navigate('Member_Register')
-                : () => navigation.navigate('Enroller_Register')
-            }>
-            <Text style={styles.signup}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
+                <View style={styles.orline2} />
+              </View>
+              <View style={{marginTop: 20}}>
+                <Icon_Button
+                  text="Sign in with Google"
+                  image={require('../assets/gmail-logo.png')}
+                />
+              </View>
+              <View style={{marginTop: 10}}>
+                <Icon_Button
+                  text="Sign in with Facebook"
+                  image={require('../assets/facebook-logo.png')}
+                />
+              </View>
+            </View>
+          ) : null} */}
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 20,
+            }}>
+            <Text style={styles.account}>Don't have an account? </Text>
+            <TouchableOpacity
+              onPress={
+                member === true
+                  ? () => navigation.navigate('Member_Register')
+                  : () => navigation.navigate('Enroller_Register')
+              }>
+              <Text style={styles.signup}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -242,7 +251,7 @@ const styles = StyleSheet.create({
     color: '#264653',
     textAlign: 'left',
     fontWeight: '700',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   desc: {
     fontSize: 16,
@@ -250,7 +259,7 @@ const styles = StyleSheet.create({
     color: '#98A6AE',
     textAlign: 'left',
     fontWeight: '400',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   forgetpass: {
     fontSize: 14,
@@ -258,7 +267,7 @@ const styles = StyleSheet.create({
     color: '#BDBDBD',
     textAlign: 'left',
     fontWeight: '500',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   orline1: {
     borderBottomWidth: 1,
@@ -280,7 +289,7 @@ const styles = StyleSheet.create({
     color: '#98A6AE',
     textAlign: 'left',
     fontWeight: '400',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   signup: {
     fontSize: 16,
@@ -288,9 +297,9 @@ const styles = StyleSheet.create({
     color: '#7200FD',
     textAlign: 'left',
     fontWeight: '700',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
-  calendar: {position: 'absolute', right: 30, bottom: 15},
+  calendar: {position: 'absolute', right: 30, bottom: 15, zIndex: 1},
 });
 
 const mapStateToProps = (state, ownProps) => ({

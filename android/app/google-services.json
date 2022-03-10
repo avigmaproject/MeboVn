@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "939201737350",
+    "project_id": "meborn-217c5",
+    "storage_bucket": "meborn-217c5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:939201737350:android:a56f093d18a177f1791707",
+        "android_client_info": {
+          "package_name": "com.meborn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "939201737350-qoegnbvj9jqt3ieuf5ek9pkoog26ubhn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLkkoUT0FTg_r4PNE3zCdELV8M49J-B9Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "939201737350-qoegnbvj9jqt3ieuf5ek9pkoog26ubhn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

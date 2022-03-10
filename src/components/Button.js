@@ -16,7 +16,7 @@ const Button = ({text, ...props}) => {
   const GradientText = props => (
     <MaskedView maskElement={<Text {...props} />}>
       <LinearGradient
-        colors={['#222439', '#5B0BBC']}
+        colors={['#7200FD', '#3B0186']}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 0}}>
         <Text {...props} style={[props.style, {opacity: 0}]} />
@@ -35,10 +35,16 @@ const Button = ({text, ...props}) => {
         backgroundColor: props.backgroundColor,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#3B0186',
+        borderColor: '#7200FD',
       }}
       onPress={props.onPress}>
-      <GradientText style={{fontSize: 18, lineHeight: 27, fontWeight: '600'}}>
+      <GradientText
+        style={{
+          fontSize: 18,
+          lineHeight: 27,
+          fontWeight: '700',
+          fontFamily: 'Poppins-Regular',
+        }}>
         {text}
       </GradientText>
     </TouchableOpacity>

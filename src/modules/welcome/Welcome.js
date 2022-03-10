@@ -6,10 +6,12 @@ import {
   StyleSheet,
   Image,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
 import Gradiant_Button from '../../components/Gradiant_Button';
+
 import {connect} from 'react-redux';
 
 import Button from '../../components/Button';
@@ -30,43 +32,45 @@ class Welcome extends Component {
 
   render() {
     return (
-      <SafeAreaView style={{flex: 1, backgroundColor: '#E5E5E5'}}>
-        <View>
-          <Image
-            source={require('../../assets/welcome_image/Rectangle.png')}
-            style={styles.header}
-          />
-          <Image
-            source={require('../../assets/splashscreen_images/logo.png')}
-            style={styles.monster}
-          />
-          <Image
-            source={require('../../assets/splashscreen_images/car.png')}
-            style={styles.car}
-          />
-        </View>
-        <View style={{marginTop: 75}}>
-          <Text style={styles.welcometext}>Welcome </Text>
-          <Text style={styles.welcometext}>Our Mebo Family</Text>
-        </View>
-        <View style={{marginTop: 10}}>
-          <Text style={styles.desctext}>
-            Lorem Ipsum has been the industry's standard dummy text ever.
-          </Text>
-        </View>
-        <View style={{marginTop: 75}}>
-          <Gradiant_Button
-            text="Memo Member"
-            onPress={() => this.onMemberClick()}
-          />
-        </View>
-        <View style={{marginTop: 25}}>
-          <Button
-            backgroundColor="#ffffff"
-            text="As a Enroller"
-            onPress={() => this.onEnrollerClick()}
-          />
-        </View>
+      <SafeAreaView style={{flex: 1, backgroundColor: '#FAFAFA'}}>
+        <ScrollView>
+          <View>
+            <Image
+              source={require('../../assets/welcome_image/Rectangle.png')}
+              style={styles.header}
+            />
+            <Image
+              source={require('../../assets/splashscreen_images/logo.png')}
+              style={styles.monster}
+            />
+            <Image
+              source={require('../../assets/splashscreen_images/car.png')}
+              style={styles.car}
+            />
+          </View>
+          <View style={{marginTop: 75}}>
+            <Text style={styles.welcometext}>Welcome </Text>
+            <Text style={styles.welcometext}>Our Mebo Family</Text>
+          </View>
+          <View style={{marginTop: 10}}>
+            <Text style={styles.desctext}>
+              Are you an enroller or a member?
+            </Text>
+          </View>
+          <View style={{marginTop: 75}}>
+            <Gradiant_Button
+              text="Mebo Member"
+              onPress={() => this.onMemberClick()}
+            />
+          </View>
+          <View style={{marginTop: 25, marginBottom: 25}}>
+            <Button
+              backgroundColor="#FFFFFF"
+              text="As a Enroller"
+              onPress={() => this.onEnrollerClick()}
+            />
+          </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -81,15 +85,15 @@ const styles = StyleSheet.create({
   },
   monster: {
     position: 'absolute',
-    height: 67,
-    width: 200,
+    height: windowHeight / 11,
+    width: windowWidth / 1.7,
     alignSelf: 'center',
     top: 75,
   },
   car: {
     position: 'absolute',
-    height: 80,
-    width: 150,
+    height: 87,
+    width: 165,
     bottom: -10,
   },
   welcometext: {
@@ -98,7 +102,7 @@ const styles = StyleSheet.create({
     color: '#264653',
     textAlign: 'center',
     fontWeight: '700',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
   desctext: {
     fontSize: 16,
@@ -106,7 +110,7 @@ const styles = StyleSheet.create({
     color: '#98A6AE',
     textAlign: 'center',
     fontWeight: '400',
-    // fontFamily: 'Poppins',
+    fontFamily: 'Poppins-Regular',
   },
 });
 

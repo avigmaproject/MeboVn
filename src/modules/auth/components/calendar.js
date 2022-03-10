@@ -22,6 +22,7 @@ const calendar = ({
       mode="date"
       onConfirm={handleConfirm}
       onCancel={hideDatePicker}
+      maximumDate={new Date(Date.now() - 86400000)}
     />
   );
 };

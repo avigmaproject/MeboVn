@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Image,
   Dimensions,
+  StatusBar,
 } from 'react-native';
 import AppIntroSlider from 'react-native-app-intro-slider';
 import {FAB} from 'react-native-paper';
@@ -18,25 +19,25 @@ const slides = [
   {
     key: 'one',
     title: 'Schedule Mebo',
-    text: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer manying took.",
+    text: 'We are easy to reach! Text, call, email or use our mobile app to schedule a consultation with a licensed MEBO insurance agent.',
     image: require('../../assets/intro_images/WalkThrough1.png'),
   },
   {
     key: 'two',
     title: 'Come on inside',
-    text: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer manying took.",
+    text: 'Our office comes to you! Learn all about the products and benefits available to you and your family.',
     image: require('../../assets/intro_images/WalkThrough2.png'),
   },
   {
     key: 'three',
-    title: 'Sign IN',
-    text: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer manying took.",
+    title: 'Sign In',
+    text: 'Select from the insurance policy that fits your needs. We offer flexible payment options that make sense for your budget.',
     image: require('../../assets/intro_images/Frame.png'),
   },
   {
     key: 'four',
-    title: 'Mobo Family',
-    text: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer manying took.",
+    title: 'Mebo Family',
+    text: 'With our mobile app we make reviewing your benefits and the programs you are enrolled in a snap!',
     image: require('../../assets/intro_images/monster.png'),
   },
 ];
@@ -52,11 +53,19 @@ export default class sliderpage extends Component {
   renderItem = ({item}) => {
     return (
       <View style={styles.slide}>
-        <Image
-          source={item.image}
-          style={item.key === 'four' ? styles.monsterimage : styles.image}
-          resizeMode="cover"
-        />
+        <View style={styles.ellipse}>
+          <Image
+            source={require('../../assets/intro_images/Ellipse.png')}
+            style={styles.ellipse_image}
+            resizeMode="contain"
+          />
+          <Image
+            source={item.image}
+            style={item.key === 'four' ? styles.monsterimage : styles.image}
+            // resizeMode="contain"
+          />
+        </View>
+
         {item.key === 'one' ? (
           <Image
             source={require('../../assets/splashscreen_images/car.png')}
@@ -67,17 +76,21 @@ export default class sliderpage extends Component {
           <Image
             source={require('../../assets/splashscreen_images/car.png')}
             style={styles.car_image_walk}
+            resizeMode="contain"
           />
         ) : null}
         {item.key === 'four' ? (
           <Image
             source={require('../../assets/splashscreen_images/car.png')}
             style={styles.car_image_monster}
+            resizeMode="contain"
           />
         ) : null}
-        <View style={{}}>
+        <View style={{width: '90%', marginTop: 275}}>
           <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.text}>{item.text}</Text>
+          <View style={{marginTop: 10}}>
+            <Text style={styles.text}>{item.text}</Text>
+          </View>
         </View>
       </View>
     );
@@ -86,7 +99,7 @@ export default class sliderpage extends Component {
   onDone = () => {
     return (
       <LinearGradient
-        colors={['#222439', '#5B0BBC']}
+        colors={['#7200FD', '#3B0186']}
         style={styles.buttonCircle}>
         <Icon name="right" color="#FFFFFF" size={20} />
       </LinearGradient>
@@ -96,7 +109,7 @@ export default class sliderpage extends Component {
   renderNextButton = () => {
     return (
       <LinearGradient
-        colors={['#222439', '#5B0BBC']}
+        colors={['#7200FD', '#3B0186']}
         style={styles.buttonCircle}>
         <Icon name="right" color="#FFFFFF" size={20} />
       </LinearGradient>
@@ -114,7 +127,8 @@ export default class sliderpage extends Component {
 
   render() {
     return (
-      <SafeAreaView style={styles.background}>
+      <View style={{flex: 1}}>
+        <StatusBar translucent backgroundColor="transparent" />
         <AppIntroSlider
           showSkipButton
           renderSkipButton={this.renderSkipButton}
@@ -124,14 +138,9 @@ export default class sliderpage extends Component {
           renderNextButton={this.renderNextButton}
           onDone={() => this.props.navigation.navigate('Welcome')}
           onSkip={() => this.props.navigation.navigate('Welcome')}
+          activeDotStyle={{backgroundColor: '#05B8C6'}}
         />
-        <View style={styles.ellipse}>
-          <Image
-            source={require('../../assets/intro_images/Ellipse.png')}
-            style={styles.ellipse_image}
-          />
-        </View>
-      </SafeAreaView>
+      </View>
     );
   }
 }
@@ -139,38 +148,45 @@ export default class sliderpage extends Component {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
   },
   ellipse: {
     position: 'absolute',
+    right: 0,
+    top: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    right: 0,
-    top: 35,
   },
   ellipse_image: {
+    width: windowWidth / 1.75,
+    height: windowHeight / 1.6,
+    resizeMode: 'contain',
     // borderWidth: 2,
   },
   car_image: {
-    height: 150,
-    width: 280,
+    width: windowWidth * 0.7,
+    height: windowHeight * 0.65,
     position: 'absolute',
-    left: -60,
+    resizeMode: 'contain',
+    left: -40,
+    top: 80,
   },
   car_image_monster: {
-    height: 150,
-    width: 280,
+    width: windowWidth * 0.8,
+    height: windowHeight * 0.75,
     position: 'absolute',
+    resizeMode: 'contain',
     left: 0,
   },
   car_image_walk: {
-    height: 150,
-    width: 280,
+    width: windowWidth * 0.7,
+    height: windowHeight * 0.65,
     position: 'absolute',
+    resizeMode: 'contain',
     left: 0,
-    bottom: 150,
   },
   slide: {
-    // flex: 1,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     // backgroundColor: '#E5E5E5',
@@ -179,15 +195,21 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     // height: 280,
     // width: 300,
-    marginLeft: 50,
-    marginVertical: 100,
+    resizeMode: 'contain',
+    width: windowWidth * 0.75,
+    height: windowHeight * 0.4,
+    position: 'absolute',
+    right: 0,
+    bottom: 25,
   },
   monsterimage: {
-    height: 235,
-    width: 175,
-    marginLeft: 225,
-    marginVertical: 130,
-    // borderWidth: 1,
+    width: windowWidth * 0.4,
+    height: windowHeight * 0.3,
+    position: 'absolute',
+    left: 70,
+    bottom: 45,
+    // marginLeft: 225,
+    // marginVertical: 130,
   },
   text: {
     fontSize: 16,
@@ -195,6 +217,7 @@ const styles = StyleSheet.create({
     color: '#98A6AE',
     textAlign: 'center',
     fontWeight: '400',
+    fontFamily: 'Poppins-Regular',
   },
   title: {
     fontSize: 26,
@@ -202,6 +225,7 @@ const styles = StyleSheet.create({
     color: '#264653',
     textAlign: 'center',
     fontWeight: '700',
+    fontFamily: 'Poppins-Regular',
   },
   buttonCircle: {
     width: 50,
@@ -221,5 +245,6 @@ const styles = StyleSheet.create({
     color: '#5D5D5D',
     textAlign: 'center',
     fontWeight: '400',
+    fontFamily: 'Poppins-Regular',
   },
 });
