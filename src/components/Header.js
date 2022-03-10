@@ -13,9 +13,7 @@ const Header = () => {
       <Image
         source={require('../assets/splashscreen_images/logo.png')}
         style={styles.monster}
-        resizeMode="contain"
-        
-      />
+        resizeMode="contain"  />
     </View>
   );
 };
